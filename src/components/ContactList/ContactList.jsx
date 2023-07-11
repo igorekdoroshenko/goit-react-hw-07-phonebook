@@ -1,9 +1,13 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
 import { ContactWriper, ContactItem, ContactButton } from './ContactList.style';
 import { nanoid } from 'nanoid';
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteContact } from 'redux/contactsSlice';
+import { useSelector } from 'react-redux';
+import {
+  useGetContactsQuery,
+  useDeleteContactMutation,
+} from 'redux/contactsSlice';
+import { selectFilter } from 'redux/selectors';
+// import { deleteContact } from 'redux/contactsSlice';
 
 // const ContactList = ({ contacts, onDeleteContact }) => (
 //   <ContactWriper>
@@ -26,18 +30,34 @@ import { deleteContact } from 'redux/contactsSlice';
 // );
 
 const ContactList = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  const contacts = useSelector(state => state.contacts.contacts);
-  const filter = useSelector(state => state.filter.filter);
+  // Виклик хука `useGetContactsQuery` для отримання списку контактів
+  const { data } = useGetContactsQuery();
 
+  // const contacts = useSelector(state => state.contacts.contacts);
+  // const filter = useSelector(state => state.filter.filter);
+
+  // Виклик хука `useDeleteContactMutation` для виконання мутації видалення контакту
+  const [deleteContact] = useDeleteContactMutation();
+  // Виклик селектора `selectFilter` для отримання значення фільтру
+  const filter = useSelector(selectFilter);
+
+  // Обробник видалення контакту
   const onDeleteContact = id => {
-    dispatch(deleteContact(id));
+    // dispatch(deleteContact(id));
+    deleteContact(id);
   };
 
-  const normalizeFilter = filter.toLocaleLowerCase();
+  if (!data) {
+    return;
+  }
 
-  const filterContacts = contacts.filter(contact => {
+  // Нормалізація значення фільтру
+  const normalizeFilter = filter.toLocaleLowerCase();
+  
+// Фільтрація контактів залежно від значення фільтру
+  const filterContacts = data.filter(contact => {
     return contact.name.toLocaleLowerCase().includes(normalizeFilter);
   });
 
@@ -47,7 +67,7 @@ const ContactList = () => {
         return (
           <ContactItem key={nanoid()}>
             <p>
-              {contact.name}: {contact.number}
+              {contact.name}: {contact.phone}
             </p>
             <ContactButton
               type="button"
@@ -63,16 +83,5 @@ const ContactList = () => {
     </ContactWriper>
   );
 };
-
-// ContactList.propTypes = {
-//   contacts: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       id: PropTypes.string.isRequired,
-//       name: PropTypes.string.isRequired,
-//       number: PropTypes.string.isRequired,
-//     })
-//   ).isRequired,
-//   onDeleteContact: PropTypes.func.isRequired,
-// };
 
 export default ContactList;
