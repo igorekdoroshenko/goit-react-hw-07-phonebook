@@ -74,11 +74,21 @@
 // }
 
 import { Container, Title, SubTitle } from './App.style';
-import { ContactForm } from './ContactForm/ContactForm';
-import ContactList from './ContactList/ContactList';
-import { Filter } from './Filter/Filter';
 
-export const App = () => {
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchContacts } from 'redux/operations';
+import ContactForm from './ContactForm/ContactForm';
+import ContactList from './ContactList/ContactList';
+import Filter from './Filter/Filter';
+
+const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
   return (
     <Container>
       <Title>Phonebook</Title>
@@ -90,3 +100,5 @@ export const App = () => {
     </Container>
   );
 };
+
+export default App;
